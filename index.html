@@ -21,7 +21,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .logo-icon{width:30px;height:30px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-icon svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .nav{display:flex;gap:2px}
-.nav button{background:none;border:none;cursor:pointer;padding:7px 11px;border-radius:10px;font-size:13px;color:var(--gray-text);display:flex;align-items:center;gap:4px;font-family:inherit;font-weight:500;transition:all .15s;white-space:nowrap}
+.nav button{background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:10px;font-size:12px;color:var(--gray-text);display:flex;align-items:center;gap:3px;font-family:inherit;font-weight:500;transition:all .15s;white-space:nowrap}
 .nav button.active{background:var(--green-light);color:var(--green);font-weight:700}
 .nav button:active{opacity:.7}
 
@@ -815,11 +815,12 @@ function renderAppts(){
     var dateStr = String(a.date||'').slice(0,10);
     var d = new Date(dateStr+'T12:00');
     var meta = [a.time, a.service, a.price?'€'+a.price:''].filter(Boolean).join(' · ');
-    return '<div class="appt-row">'+
+    var rowColor = (a.color && colorMap[a.color]) ? colorMap[a.color] : (a.status==='gedaan' ? '#3a3a3a' : '#1D9E75');
+    return '<div class="appt-row" style="border-left:4px solid '+rowColor+';padding-left:8px">'+
       '<div class="appt-date-box"><div class="appt-d">'+dateStr.slice(8)+'</div><div class="appt-m">'+(isNaN(d)?'':mn[d.getMonth()])+'</div></div>'+
       '<div class="appt-info"><div class="appt-name">'+clientName(a.clientId)+'</div><div class="appt-meta">'+meta+'</div></div>'+
-      '<span class="badge '+(a.status==='gedaan'?'badge-ok':'badge-plan')+'">'+a.status+'</span>'+
-      '<div style="display:flex;gap:5px">'+
+      '<span class="badge '+(a.status==='gedaan'?'badge-ok':'badge-plan')+'" style="flex-shrink:0">'+a.status+'</span>'+
+      '<div style="display:flex;gap:5px;flex-shrink:0">'+
         '<button class="btn-sm" onclick="openApptModal(\''+a.id+'\')">✏️</button>'+
         '<button class="btn-sm btn-danger" onclick="deleteApptById(\''+a.id+'\')">🗑</button>'+
       '</div>'+
