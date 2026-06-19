@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CleanTrack">
 <meta name="theme-color" content="#1D9E75">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="manifest" href="manifest.json">
 <title>CleanTrack</title>
 <style>
@@ -417,10 +420,11 @@ function normalizeAppts(arr){
 function loadAll(){
   if(!SCRIPT_URL){ showSetup(); return; }
   showLoading();
+  // Always fetch fresh from Google Sheets
   api({action:'getAll'}).then(function(data){
     if(data.clients) clients = data.clients;
     if(data.appts)   appts   = normalizeAppts(data.appts);
-    saveLocal();
+    saveLocal(); // update local cache
     hideLoading();
     showTab('home');
   }).catch(function(){
@@ -915,6 +919,20 @@ function getPickerColor(pickerId){
 }
 
 // ── INIT ─────────────────────────────────────────────────
+// Reload fresh data every time the app becomes visible again
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible' && SCRIPT_URL){
+    api({action:'getAll'}).then(function(data){
+      if(data.clients) clients = data.clients;
+      if(data.appts)   appts   = normalizeAppts(data.appts);
+      saveLocal();
+      // Refresh current visible tab
+      var active = document.querySelector('.nav button.active');
+      if(active) active.click();
+    }).catch(function(){ /* offline, keep local */ });
+  }
+});
+
 loadAll();
 </script>
 </body>
