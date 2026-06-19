@@ -799,9 +799,16 @@ function saveWizAppt(){
   };
   appts.push(appt);
   saveLocal();
-  api({action:'saveAppt', appt: appt}).catch(function(){ toast('⚠️ Niet gesynchroniseerd'); });
+  api({action:'saveAppt', appt: appt}).then(function(){
+    // After saving, refresh current tab
+    var activeTab = document.querySelector('.nav button.active');
+    var currentTab = activeTab ? activeTab.id.replace('tab-','') : 'home';
+    if(currentTab==='agenda') renderAppts();
+    else if(currentTab==='home') renderHome();
+  }).catch(function(){ toast('⚠️ Niet gesynchroniseerd'); });
   closeModals();
   renderHome();
+  renderAppts();
   toast('✓ Opdracht ingepland');
 }
 
@@ -927,12 +934,21 @@ function getPickerColor(pickerId){
 // ── HARD RESET ───────────────────────────────────────────
 function hardReset(){
   if(!confirm('Lokale data wissen en alles opnieuw laden van Google Sheets?')) return;
+  var activeTab = document.querySelector('.nav button.active');
+  var currentTab = activeTab ? activeTab.id.replace('tab-','') : 'home';
   localStorage.removeItem('ct_clients');
   localStorage.removeItem('ct_appts');
   clients = [];
   appts = [];
-  loadAll();
-  toast('🔄 Opnieuw geladen van Google Sheets');
+  api({action:'getAll'}).then(function(data){
+    if(data.clients) clients = data.clients;
+    if(data.appts)   appts   = normalizeAppts(data.appts);
+    saveLocal();
+    showTab(currentTab);
+    toast('🔄 Gesynchroniseerd');
+  }).catch(function(){
+    toast('⚠️ Offline — lokale data geladen');
+  });
 }
 
 // ── INIT ─────────────────────────────────────────────────
@@ -943,9 +959,14 @@ document.addEventListener('visibilitychange', function(){
       if(data.clients) clients = data.clients;
       if(data.appts)   appts   = normalizeAppts(data.appts);
       saveLocal();
-      // Refresh current visible tab
-      var active = document.querySelector('.nav button.active');
-      if(active) active.click();
+      // Refresh current visible tab WITHOUT changing tab
+      var activeTab = document.querySelector('.nav button.active');
+      if(activeTab){
+        var tabName = activeTab.id.replace('tab-','');
+        if(tabName==='home') renderHome();
+        if(tabName==='clients') renderClients();
+        if(tabName==='agenda') renderAppts();
+      }
     }).catch(function(){ /* offline, keep local */ });
   }
 });
