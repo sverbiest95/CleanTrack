@@ -192,11 +192,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         <button class="btn-primary" onclick="openClientModal()">+ Nieuwe klant</button>
       </div>
       <div class="toolbar" style="margin-top:-5px">
-        <button class="btn-sm" onclick="document.getElementById('csv-input').click()">📂 Importeer CSV (CleanPlanner)</button>
-        <input type="file" id="csv-input" accept=".csv,.CSV" class="hidden" onchange="importCSV(event)">
+        <button class="btn-sm" onclick="document.getElementById('csv-input').click()">📂 Importeer klantenbestand (CleanPlanner)</button>
+        <input type="file" id="csv-input" accept=".csv,.CSV,.xls,.XLS,.xlsx,.XLSX" class="hidden" onchange="importCSV(event)">
       </div>
       <div class="info-box">
-        <strong>CSV importeren uit CleanPlanner:</strong> Ga naar Klanten → klik "Lijst exporteren" → sla CSV op → klik hierboven op "Importeer CSV" en kies dat bestand.
+        <strong>Importeren uit CleanPlanner:</strong> Ga naar Klanten → klik "Lijst exporteren" → sla het bestand op → klik hierboven op "Importeer klantenbestand" en kies dat bestand.
       </div>
       <div class="card"><div id="client-list"></div></div>
     </div>
@@ -561,46 +561,103 @@ function importCSV(e){
   var reader = new FileReader();
   reader.onload = function(ev){
     var text = ev.target.result;
-    var sep  = text.indexOf(';') > -1 ? ';' : ',';
-    var lines = text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
-    if(lines.length < 2){ alert('CSV lijkt leeg.'); return; }
-    var header = lines[0].split(sep).map(function(h){return h.trim().toLowerCase().replace(/["\r]/g,'');});
-    function colIdx(names){
-      for(var ni=0;ni<names.length;ni++){
-        var idx = header.findIndex(function(h){return h.includes(names[ni]);});
-        if(idx >= 0) return idx;
-      }
-      return -1;
-    }
-    function getCol(cols, names){
-      var i = colIdx(names);
-      if(i<0 || !cols[i]) return '';
-      return cols[i].trim().replace(/^["']|["']$/g,'').trim();
-    }
     var count=0, skip=0, batch=[];
-    for(var i=1;i<lines.length;i++){
-      var cols = lines[i].split(sep);
-      var name = getCol(cols,['bedrijfsnaam','naam','name','commerci']);
-      if(!name){ skip++; continue; }
-      var exists = clients.find(function(c){return c.name.toLowerCase()===name.toLowerCase();});
-      if(!exists){
-        var rawpc = getCol(cols,['postcode']);
-        var gem   = getCol(cols,['gemeente']);
-        var city  = rawpc&&gem ? rawpc+' '+gem : (rawpc||gem);
-        var newClient = {
-          id: uid(), name: name,
-          addr:  getCol(cols,['adres','address','straat']),
-          city:  city || getCol(cols,['stad','city']),
-          phone: getCol(cols,['gsm','tel','phone','telefoon','mob']),
-          email: getCol(cols,['email','e-mail','mail']),
-          defaultPrice: getCol(cols,['standaardprijs','prijs','price']),
-          notes: ''
-        };
-        clients.push(newClient);
-        batch.push(newClient);
-        count++;
-      } else { skip++; }
+
+    // Detect HTML/XLS format (CleanPlanner exports as HTML table with .xls extension)
+    if(text.indexOf('<table') > -1 || text.indexOf('<TABLE') > -1 || text.indexOf('<th') > -1){
+      // Parse as HTML table
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(text, 'text/html');
+      var rows = doc.querySelectorAll('tr');
+      if(rows.length < 2){ alert('Geen klanten gevonden in het bestand.'); return; }
+
+      // Get headers from first row
+      var headerCells = rows[0].querySelectorAll('th,td');
+      var headers = [];
+      headerCells.forEach(function(c){ headers.push(c.textContent.trim().toLowerCase()); });
+
+      function colIdx(names){
+        for(var ni=0;ni<names.length;ni++){
+          var idx = headers.findIndex(function(h){return h.includes(names[ni]);});
+          if(idx >= 0) return idx;
+        }
+        return -1;
+      }
+      function getCell(cells, names){
+        var i = colIdx(names);
+        if(i<0 || !cells[i]) return '';
+        return cells[i].textContent.trim();
+      }
+
+      for(var i=1;i<rows.length;i++){
+        var cells = rows[i].querySelectorAll('td');
+        if(cells.length < 2) continue;
+        var name = getCell(cells, ['bedrijf','naam','name','commerci']);
+        if(!name){ skip++; continue; }
+        var exists = clients.find(function(c){return c.name.toLowerCase()===name.toLowerCase();});
+        if(!exists){
+          var pc  = getCell(cells, ['pc','postcode']);
+          var gem = getCell(cells, ['gemeente']);
+          var city = pc&&gem ? pc+' '+gem : (pc||gem);
+          var phone = getCell(cells, ['tel','telefoon']);
+          var gsm   = getCell(cells, ['gsm','mob']);
+          var newClient = {
+            id: uid(), name: name,
+            addr:  getCell(cells, ['adres','address','straat']),
+            city:  city,
+            phone: gsm || phone,
+            email: getCell(cells, ['email','e-mail','mail']),
+            defaultPrice: getCell(cells, ['standaardprijs','prijs','price']),
+            notes: ''
+          };
+          clients.push(newClient);
+          batch.push(newClient);
+          count++;
+        } else { skip++; }
+      }
+    } else {
+      // Parse as CSV
+      var sep = text.indexOf(';') > -1 ? ';' : ',';
+      var lines = text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+      if(lines.length < 2){ alert('Bestand lijkt leeg.'); return; }
+      var header = lines[0].split(sep).map(function(h){return h.trim().toLowerCase().replace(/["\r]/g,'');});
+      function colIdxCSV(names){
+        for(var ni=0;ni<names.length;ni++){
+          var idx = header.findIndex(function(h){return h.includes(names[ni]);});
+          if(idx >= 0) return idx;
+        }
+        return -1;
+      }
+      function getColCSV(cols, names){
+        var i = colIdxCSV(names);
+        if(i<0 || !cols[i]) return '';
+        return cols[i].trim().replace(/^["']|["']$/g,'').trim();
+      }
+      for(var i=1;i<lines.length;i++){
+        var cols = lines[i].split(sep);
+        var name = getColCSV(cols,['bedrijf','bedrijfsnaam','naam','name','commerci']);
+        if(!name){ skip++; continue; }
+        var exists = clients.find(function(c){return c.name.toLowerCase()===name.toLowerCase();});
+        if(!exists){
+          var rawpc = getColCSV(cols,['pc','postcode']);
+          var gem   = getColCSV(cols,['gemeente']);
+          var city  = rawpc&&gem ? rawpc+' '+gem : (rawpc||gem);
+          var newClient = {
+            id: uid(), name: name,
+            addr:  getColCSV(cols,['adres','address','straat']),
+            city:  city,
+            phone: getColCSV(cols,['gsm','tel','phone','telefoon','mob']),
+            email: getColCSV(cols,['email','e-mail','mail']),
+            defaultPrice: getColCSV(cols,['standaardprijs','prijs','price']),
+            notes: ''
+          };
+          clients.push(newClient);
+          batch.push(newClient);
+          count++;
+        } else { skip++; }
+      }
     }
+
     saveLocal();
     if(batch.length){
       api({action:'importClients', clients: batch})
