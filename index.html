@@ -133,6 +133,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .sync-dot.err{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
+/* COLOR PICKER */
+.color-picker{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0}
+.color-opt{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border .15s;flex-shrink:0}
+.color-opt:active{transform:scale(.9)}
+.color-opt.selected{border-color:#fff;box-shadow:0 0 0 2.5px #1a1a1a;transform:scale(1.1)}
+
 /* IMPORT INFO */
 .info-box{background:#f0f8ff;border:1px solid #b3d9f5;border-radius:10px;padding:12px 14px;font-size:13px;color:#1a5276;line-height:1.6;margin-bottom:14px}
 </style>
@@ -277,6 +283,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         </select>
       </div>
       <div class="form-row"><label>Prijs (€)</label><input id="w-price" type="number" min="0" step="0.5" placeholder="45"></div>
+      <div class="form-row"><label>Kleur</label>
+        <div class="color-picker" id="w-color-picker">
+          <div class="color-opt selected" data-color="" style="background:#1D9E75" title="Standaard groen"></div>
+          <div class="color-opt" data-color="red" style="background:#e24b4a" title="Rood"></div>
+          <div class="color-opt" data-color="orange" style="background:#f5a623" title="Oranje"></div>
+          <div class="color-opt" data-color="blue" style="background:#2980b9" title="Blauw"></div>
+          <div class="color-opt" data-color="purple" style="background:#8e44ad" title="Paars"></div>
+          <div class="color-opt" data-color="dark" style="background:#3a3a3a" title="Gedaan/Donker"></div>
+        </div>
+      </div>
       <div class="form-row"><label>Notities</label><textarea id="w-notes" placeholder="Extra info..."></textarea></div>
       <div class="modal-actions">
         <button class="btn-sm" onclick="setWizStep(2)">← Terug</button>
@@ -307,6 +323,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
     <div class="form-row"><label>Prijs (€)</label><input id="a-price" type="number" min="0" step="0.5"></div>
     <div class="form-row"><label>Status</label>
       <select id="a-status"><option value="gepland">Gepland</option><option value="gedaan">Gedaan</option></select>
+    </div>
+    <div class="form-row"><label>Kleur</label>
+      <div class="color-picker" id="a-color-picker">
+        <div class="color-opt selected" data-color="" style="background:#1D9E75" title="Standaard groen"></div>
+        <div class="color-opt" data-color="red" style="background:#e24b4a" title="Rood"></div>
+        <div class="color-opt" data-color="orange" style="background:#f5a623" title="Oranje"></div>
+        <div class="color-opt" data-color="blue" style="background:#2980b9" title="Blauw"></div>
+        <div class="color-opt" data-color="purple" style="background:#8e44ad" title="Paars"></div>
+        <div class="color-opt" data-color="dark" style="background:#3a3a3a" title="Donker"></div>
+      </div>
     </div>
     <div class="form-row"><label>Notities</label><textarea id="a-notes"></textarea></div>
     <div class="modal-actions">
@@ -682,6 +708,7 @@ function openNewApptWizard(){
   document.getElementById('w-notes').value   = '';
   setWizStep(1);
   renderWizClients();
+  initColorPicker('w-color-picker', '');
   document.getElementById('appt-wizard').classList.remove('hidden');
   setTimeout(function(){ document.getElementById('wiz-search').focus(); }, 150);
 }
@@ -741,6 +768,7 @@ function saveWizAppt(){
     service: document.getElementById('w-service').value,
     price:   document.getElementById('w-price').value,
     status:  'gepland',
+    color:   getPickerColor('w-color-picker'),
     notes:   document.getElementById('w-notes').value.trim()
   };
   appts.push(appt);
@@ -792,6 +820,7 @@ function openApptModal(id){
   document.getElementById('a-price').value   = a.price||'';
   document.getElementById('a-status').value  = a.status||'gepland';
   document.getElementById('a-notes').value   = a.notes||'';
+  initColorPicker('a-color-picker', a.color||'');
   document.getElementById('appt-modal').classList.remove('hidden');
 }
 
@@ -803,6 +832,7 @@ function saveAppt(){
   a.service  = document.getElementById('a-service').value;
   a.price    = document.getElementById('a-price').value;
   a.status   = document.getElementById('a-status').value;
+  a.color    = getPickerColor('a-color-picker');
   a.notes    = document.getElementById('a-notes').value;
   saveLocal();
   api({action:'saveAppt', appt: a}).catch(function(){ toast('⚠️ Niet gesynchroniseerd'); });
@@ -835,6 +865,35 @@ function closeModals(){
   afterNewClient = false;
 }
 function bgClose(e, id){ if(e.target===document.getElementById(id)) closeModals(); }
+
+// ── COLOR MAP ────────────────────────────────────────────
+var colorMap = {
+  '': '#1D9E75',
+  'red': '#e24b4a',
+  'orange': '#f5a623',
+  'blue': '#2980b9',
+  'purple': '#8e44ad',
+  'dark': '#3a3a3a'
+};
+
+function initColorPicker(pickerId, color){
+  var picker = document.getElementById(pickerId);
+  if(!picker) return;
+  picker.querySelectorAll('.color-opt').forEach(function(opt){
+    opt.classList.toggle('selected', opt.dataset.color === (color||''));
+    opt.onclick = function(){
+      picker.querySelectorAll('.color-opt').forEach(function(o){ o.classList.remove('selected'); });
+      opt.classList.add('selected');
+    };
+  });
+}
+
+function getPickerColor(pickerId){
+  var picker = document.getElementById(pickerId);
+  if(!picker) return '';
+  var sel = picker.querySelector('.color-opt.selected');
+  return sel ? sel.dataset.color : '';
+}
 
 // ── INIT ─────────────────────────────────────────────────
 loadAll();
