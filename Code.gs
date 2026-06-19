@@ -5,7 +5,7 @@
 
 // ── INSTELLINGEN ─────────────────────────────────────────────────
 // Vervang dit door de ID van jouw Google Sheet (zie installatiegids stap 2)
-var SHEET_ID = 'JOUW_SHEET_ID_HIER';
+var SHEET_ID = '1g_NUHXtt0raerg1D6fn4G4TcqOq7a2cXZHTc7E-56a0';
 
 var CLIENTS_SHEET = 'Klanten';
 var APPTS_SHEET   = 'Afspraken';
