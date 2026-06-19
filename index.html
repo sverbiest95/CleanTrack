@@ -386,9 +386,13 @@ function toast(msg, dur){
 // ── API CALLS ───────────────────────────────────────────
 function api(params){
   setSyncDot('syncing');
-  return fetch(SCRIPT_URL, {
+  // Add timestamp to prevent caching
+  var url = SCRIPT_URL + '?t=' + Date.now();
+  return fetch(url, {
     method: 'POST',
-    body: JSON.stringify(params)
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify(params),
+    cache: 'no-store'
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
