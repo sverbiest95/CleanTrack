@@ -397,12 +397,25 @@ function api(params){
   });
 }
 
+function normalizeAppts(arr){
+  return (arr||[]).map(function(a){
+    // Google Sheets may return dates in various formats — normalize to YYYY-MM-DD
+    if(a.date && String(a.date).length > 10){
+      var d = new Date(a.date);
+      if(!isNaN(d)){
+        a.date = d.toISOString().slice(0,10);
+      }
+    }
+    return a;
+  });
+}
+
 function loadAll(){
   if(!SCRIPT_URL){ showSetup(); return; }
   showLoading();
   api({action:'getAll'}).then(function(data){
     if(data.clients) clients = data.clients;
-    if(data.appts)   appts   = data.appts;
+    if(data.appts)   appts   = normalizeAppts(data.appts);
     saveLocal();
     hideLoading();
     showTab('home');
@@ -464,7 +477,7 @@ function renderHome(){
   if(dateEl) dateEl.textContent =
     days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
 
-  var todayA = appts.filter(function(a){return a.date===td;})
+  var todayA = appts.filter(function(a){return String(a.date||'').slice(0,10)===td;})
                     .sort(function(a,b){return (a.time||'').localeCompare(b.time||'');});
   var el = document.getElementById('home-appts');
   if(!el) return;
@@ -786,7 +799,7 @@ function renderAppts(){
   var sorted = appts.filter(function(a){
     return !q || clientName(a.clientId).toLowerCase().includes(q);
   }).slice().sort(function(a,b){
-    return a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||'');
+    return String(a.date||'').localeCompare(String(b.date||'')) || (a.time||'').localeCompare(b.time||'');
   });
   var el = document.getElementById('appt-list');
   if(!sorted.length){
@@ -795,10 +808,11 @@ function renderAppts(){
   }
   var mn = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
   el.innerHTML = sorted.map(function(a){
-    var d = new Date(a.date+'T12:00');
+    var dateStr = String(a.date||'').slice(0,10);
+    var d = new Date(dateStr+'T12:00');
     var meta = [a.time, a.service, a.price?'€'+a.price:''].filter(Boolean).join(' · ');
     return '<div class="appt-row">'+
-      '<div class="appt-date-box"><div class="appt-d">'+a.date.slice(8)+'</div><div class="appt-m">'+mn[d.getMonth()]+'</div></div>'+
+      '<div class="appt-date-box"><div class="appt-d">'+dateStr.slice(8)+'</div><div class="appt-m">'+(isNaN(d)?'':mn[d.getMonth()])+'</div></div>'+
       '<div class="appt-info"><div class="appt-name">'+clientName(a.clientId)+'</div><div class="appt-meta">'+meta+'</div></div>'+
       '<span class="badge '+(a.status==='gedaan'?'badge-ok':'badge-plan')+'">'+a.status+'</span>'+
       '<div style="display:flex;gap:5px">'+
