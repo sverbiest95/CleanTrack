@@ -501,11 +501,11 @@ function renderHome(){
     var c = clientById(a.clientId);
     var addr = c ? [c.addr, c.city].filter(Boolean).join(', ') : '';
     return '<div class="appt-block status-'+a.status+'" onclick="openApptModal(\''+a.id+'\')">'+
-      '<div class="ab-row"><span class="ab-time">'+(a.time||'–')+'</span><span class="ab-status">'+(a.status==='gedaan'?'✓ Gedaan':'Gepland')+'</span></div>'+
+      '<div class="ab-row"><span class="ab-time">'+(a.time&&a.time.indexOf('1899')===-1&&a.time.indexOf('GMT')===-1?a.time:'–')+'</span><span class="ab-status">'+(a.status==='gedaan'?'✓ Gedaan':'Gepland')+'</span></div>'+
       '<div class="ab-name">'+clientName(a.clientId)+'</div>'+
       (addr?'<div class="ab-addr">📍 '+addr+'</div>':'')+
       (a.service?'<div class="ab-svc">'+a.service+'</div>':'')+
-      (a.price?'<div class="ab-price">€ '+a.price+'</div>':'')+
+      (a.price && String(a.price).indexOf('1899')===-1?'<div class="ab-price">€ '+a.price+'</div>':'')+
     '</div>';
   }).join('');
 }
@@ -822,7 +822,8 @@ function renderAppts(){
   el.innerHTML = sorted.map(function(a){
     var dateStr = String(a.date||'').slice(0,10);
     var d = new Date(dateStr+'T12:00');
-    var meta = [a.time, a.service, a.price?'€'+a.price:''].filter(Boolean).join(' · ');
+    var timeDisplay = (a.time && a.time.indexOf('1899') === -1 && a.time.indexOf('GMT') === -1) ? a.time : '';
+    var meta = [timeDisplay, a.service, a.price?'€'+a.price:''].filter(Boolean).join(' · ');
     var rowColor = (a.color && colorMap[a.color]) ? colorMap[a.color] : (a.status==='gedaan' ? '#3a3a3a' : '#1D9E75');
     return '<div class="appt-row" style="border-left:4px solid '+rowColor+';padding-left:8px">'+
       '<div class="appt-date-box"><div class="appt-d">'+dateStr.slice(8)+'</div><div class="appt-m">'+(isNaN(d)?'':mn[d.getMonth()])+'</div></div>'+
