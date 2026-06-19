@@ -83,12 +83,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .client-actions{display:flex;gap:6px}
 
 /* APPT LIST */
-.appt-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f2f2f2}
+.appt-row{display:flex;align-items:center;gap:8px;padding:11px 4px;border-bottom:1px solid #f2f2f2;min-width:0}
 .appt-row:last-child{border-bottom:none}
 .appt-date-box{min-width:60px;text-align:center;background:var(--gray-bg);border-radius:10px;padding:7px 4px;flex-shrink:0}
 .appt-d{font-size:20px;font-weight:800;line-height:1;color:var(--green)}
 .appt-m{font-size:10px;color:var(--gray-text);margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
-.appt-info{flex:1;min-width:0}
+.appt-info{flex:1;min-width:0;overflow:hidden}
 .appt-name{font-weight:600;font-size:14px}
 .appt-meta{font-size:12px;color:var(--gray-text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
@@ -352,6 +352,8 @@ var SCRIPT_URL = localStorage.getItem('ct_script_url') || 'https://script.google
 // ── STATE ───────────────────────────────────────────────
 var clients = JSON.parse(localStorage.getItem('ct_clients') || '[]');
 var appts   = JSON.parse(localStorage.getItem('ct_appts')   || '[]');
+// normalize dates on load
+try{ appts = appts.map(function(a){ if(a.date && !/^\d{4}-\d{2}-\d{2}$/.test(String(a.date))){ var d=new Date(a.date); if(!isNaN(d)&&d.getFullYear()>1900) a.date=d.toISOString().slice(0,10); } return a; }); }catch(e){}
 var editClientId = null, editApptId = null, wizClientId = null, afterNewClient = false;
 
 // ── HELPERS ─────────────────────────────────────────────
@@ -399,12 +401,14 @@ function api(params){
 
 function normalizeAppts(arr){
   return (arr||[]).map(function(a){
-    // Google Sheets may return dates in various formats — normalize to YYYY-MM-DD
-    if(a.date && String(a.date).length > 10){
-      var d = new Date(a.date);
-      if(!isNaN(d)){
-        a.date = d.toISOString().slice(0,10);
-      }
+    if(!a.date) return a;
+    var ds = String(a.date).trim();
+    // Already YYYY-MM-DD
+    if(/^\d{4}-\d{2}-\d{2}$/.test(ds)){ return a; }
+    // Try parsing as date string
+    var d = new Date(ds);
+    if(!isNaN(d) && d.getFullYear() > 1900){
+      a.date = d.toISOString().slice(0,10);
     }
     return a;
   });
