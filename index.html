@@ -156,6 +156,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       CleanTrack
       <span class="sync-dot" id="sync-dot" title="Synchronisatiestatus"></span>
     </a>
+    <button onclick="hardReset()" style="background:none;border:none;cursor:pointer;font-size:11px;color:#bbb;padding:4px 8px;border-radius:8px;font-family:inherit" title="Hersynchroniseer">↺ sync</button>
     <div class="nav">
       <button class="active" onclick="showTab('home')" id="tab-home">🏠 Vandaag</button>
       <button onclick="showTab('clients')" id="tab-clients">👥 Klanten</button>
@@ -921,6 +922,17 @@ function getPickerColor(pickerId){
   if(!picker) return '';
   var sel = picker.querySelector('.color-opt.selected');
   return sel ? sel.dataset.color : '';
+}
+
+// ── HARD RESET ───────────────────────────────────────────
+function hardReset(){
+  if(!confirm('Lokale data wissen en alles opnieuw laden van Google Sheets?')) return;
+  localStorage.removeItem('ct_clients');
+  localStorage.removeItem('ct_appts');
+  clients = [];
+  appts = [];
+  loadAll();
+  toast('🔄 Opnieuw geladen van Google Sheets');
 }
 
 // ── INIT ─────────────────────────────────────────────────
