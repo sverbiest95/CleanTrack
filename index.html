@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CleanTrack">
+<meta name="theme-color" content="#1D9E75">
+<title>CleanTrack</title>
+<style>
+:root{--gr:#1D9E75;--gd:#0F6E56;--gl:#e8f5f1;--gm:#9FE1CB;--bg:#f5f5f5;--bo:#e8e8e8;--gt:#888;--tx:#1a1a1a;--wh:#fff;--re:#e24b4a;--rl:#fff0f0;--al:#fef3e2;--am:#a06000}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;color:var(--tx);background:var(--bg);min-height:100dvh;overflow-x:hidden}
+.app{display:flex;flex-direction:column;min-height:100dvh;max-width:620px;margin:0 auto;background:var(--wh);overflow-x:hidden;width:100%}
+.hdr{background:var(--wh);border-bottom:1px solid var(--bo);padding:8px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;overflow:hidden;width:100%}
+.logo{display:flex;align-items:center;gap:5px;font-weight:700;font-size:13px;color:var(--tx);text-decoration:none;flex-shrink:0}
+.li{width:26px;height:26px;background:var(--gr);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.li svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round}
+.sd{width:8px;height:8px;border-radius:50%;background:#ccc;margin-left:4px;display:inline-block;transition:background .3s}
+.sd.sy{background:#f5a623;animation:pu 1s infinite}.sd.ok{background:var(--gr)}.sd.er{background:var(--re)}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.4}}
+.nav{display:flex;gap:1px;flex-shrink:1;min-width:0}
+.nav button{background:none;border:none;cursor:pointer;padding:5px 5px;border-radius:8px;font-size:10px;color:var(--gt);font-family:inherit;font-weight:500;white-space:nowrap}
+.nav button.ac{background:var(--gl);color:var(--gr);font-weight:700}
+.con{flex:1;padding:12px}
+.hid{display:none!important}
+.sp{width:32px;height:32px;border:3px solid var(--bo);border-top-color:var(--gr);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;color:var(--gt);font-size:14px}
+.sc{background:var(--wh);border:1px solid var(--bo);border-radius:16px;padding:24px 20px;margin-bottom:14px}
+.sc h2{font-size:17px;font-weight:700;margin-bottom:8px}
+.sc p{font-size:14px;color:#555;line-height:1.6;margin-bottom:14px}
+.si{width:100%;border:1px solid var(--bo);border-radius:10px;padding:11px 13px;font-size:15px;font-family:inherit;outline:none;color:var(--tx)}
+.si:focus{border-color:var(--gr)}
+.dh{font-size:14px;color:#555;text-align:center;padding:10px 14px;background:var(--bg);border-radius:10px;margin-bottom:14px;font-weight:600}
+.ab{border-radius:13px;padding:14px 16px;margin-bottom:9px;cursor:pointer;user-select:none}
+.ab:active{opacity:.82}
+.ar{display:flex;align-items:center;justify-content:space-between}
+.at{font-weight:700;font-size:15px}
+.as{font-size:12px;opacity:.85;background:rgba(255,255,255,.2);padding:2px 9px;border-radius:20px;font-weight:600}
+.an{font-size:15px;margin-top:5px;font-weight:600}
+.aa{font-size:13px;margin-top:2px;opacity:.75}
+.av{font-size:13px;margin-top:4px;opacity:.82;font-style:italic}
+.ap{font-size:13px;margin-top:3px;opacity:.85;font-weight:600}
+.bnb{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--gr);color:#fff;border:none;border-radius:14px;padding:18px;font-size:17px;font-weight:700;cursor:pointer;width:100%;margin-top:18px;font-family:inherit}
+.bnb:active{background:var(--gd)}
+.eh{text-align:center;padding:36px 16px;color:#bbb;font-size:14px}
+.tb{display:flex;align-items:center;gap:8px;margin-bottom:13px;flex-wrap:wrap}
+.tb input{flex:1;min-width:120px;border:1px solid var(--bo);border-radius:10px;padding:9px 12px;background:var(--wh);color:var(--tx);font-size:15px;font-family:inherit;outline:none}
+.tb input:focus{border-color:var(--gr)}
+.bp{background:var(--gr);color:#fff;border:none;border-radius:10px;padding:9px 15px;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:inherit}
+.bp:active{background:var(--gd)}
+.bs{border:1px solid var(--bo);background:var(--wh);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;color:#444;font-family:inherit;white-space:nowrap;font-weight:500}
+.bs:active{background:var(--bg)}
+.bd{border-color:var(--re);color:var(--re)}
+.bd:active{background:var(--rl)}
+.cd{background:var(--wh);border:1px solid var(--bo);border-radius:14px;padding:10px;margin-bottom:12px}
+.cr{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f2f2f2}
+.cr:last-child{border-bottom:none}
+.av2{width:38px;height:38px;border-radius:50%;background:var(--gl);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--gd);flex-shrink:0}
+.ci{flex:1;min-width:0}
+.cn{font-weight:600;font-size:15px}
+.cm{font-size:12px;color:var(--gt);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ca{display:flex;gap:4px;flex-shrink:0}
+.ro{display:flex;align-items:center;gap:6px;padding:10px 2px;border-bottom:1px solid #f2f2f2;min-width:0;overflow:hidden}
+.ro:last-child{border-bottom:none}
+.db{min-width:60px;text-align:center;background:var(--bg);border-radius:10px;padding:7px 4px;flex-shrink:0}
+.dd{font-size:20px;font-weight:800;line-height:1;color:var(--gr)}
+.dm{font-size:10px;color:var(--gt);margin-top:2px;text-transform:uppercase}
+.di{flex:1;min-width:0;overflow:hidden}
+.dn{font-weight:600;font-size:14px}
+.dme{font-size:12px;color:var(--gt);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ba{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0}
+.bok{background:var(--gl);color:var(--gd)}
+.bpl{background:var(--al);color:var(--am)}
+.em{text-align:center;padding:36px 16px;color:#bbb;font-size:14px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:flex-end;justify-content:center;z-index:100}
+@media(min-width:520px){.ov{align-items:center;padding:16px}}
+.mo{background:var(--wh);border-radius:22px 22px 0 0;padding:22px 18px 36px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
+@media(min-width:520px){.mo{border-radius:18px;padding:24px 22px}}
+.mh{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 18px}
+.mo h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.fr{margin-bottom:13px}
+.fr label{display:block;font-size:13px;color:#555;margin-bottom:4px;font-weight:600}
+.fr input,.fr select,.fr textarea{width:100%;border:1px solid var(--bo);border-radius:10px;padding:11px 13px;background:var(--wh);color:var(--tx);font-size:16px;font-family:inherit;outline:none;-webkit-appearance:none}
+.fr input:focus,.fr select:focus,.fr textarea:focus{border-color:var(--gr)}
+.fr textarea{resize:vertical;min-height:70px}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.sb{display:flex;align-items:center;gap:6px;margin-bottom:20px}
+.sdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--bo);color:#bbb;flex-shrink:0}
+.sdot.ac{background:var(--gr);color:#fff;border-color:var(--gr)}
+.sdot.dn2{background:var(--gl);color:var(--gd);border-color:var(--gm)}
+.sl{flex:1;height:2px;background:var(--bo);border-radius:1px}
+.pl{max-height:280px;overflow-y:auto;margin-top:4px}
+.pr{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #eee;border-radius:11px;margin-bottom:7px;cursor:pointer;user-select:none}
+.pr:active,.pr.sel{background:var(--gl);border-color:var(--gm)}
+.scb{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:14px;font-weight:600;color:#333}
+.ts{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:11px 20px;border-radius:22px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.ts.sh{opacity:1}
+.cp{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0}
+.co{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border .15s;flex-shrink:0}
+.co:active{transform:scale(.9)}
+.co.sel{border-color:#fff;box-shadow:0 0 0 2.5px #1a1a1a;transform:scale(1.1)}
+.vs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:14px}
+.vb{flex:1;padding:7px;border:none;background:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--gt);font-family:inherit}
+.vb.ac{background:var(--wh);color:var(--gr);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.gl2{font-size:12px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.05em;padding:6px 2px;margin-bottom:6px;border-bottom:1px solid var(--bo)}
+.ml{font-size:14px;font-weight:700;color:var(--tx);padding:6px 2px;margin-bottom:8px;border-bottom:2px solid var(--gr)}
+.gb{margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <a class="logo" href="#">
+      <div class="li"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5 10 5 15a7 7 0 0014 0C19 10 12 2 12 2z"/></svg></div>
+      CleanTrack<span class="sd" id="sd"></span>
+    </a>
+    <button onclick="hardReset()" style="background:none;border:none;cursor:pointer;font-size:11px;color:#bbb;padding:3px 6px;border-radius:6px;font-family:inherit;flex-shrink:0">&#8635;</button>
+    <div class="nav">
+      <button class="ac" onclick="showTab('home')" id="tab-home">&#127968; Vandaag</button>
+      <button onclick="showTab('clients')" id="tab-clients">&#128101; Klanten</button>
+      <button onclick="showTab('agenda')" id="tab-agenda">&#128197; Agenda</button>
+    </div>
+  </div>
+  <div class="con">
+    <div id="view-setup">
+      <div class="sc">
+        <h2>&#9881;&#65039; Eerste keer instellen</h2>
+        <p>Voer de URL van je Google Apps Script in.</p>
+        <input class="si" id="setup-url" type="url" placeholder="https://script.google.com/macros/s/...">
+        <div style="margin-top:14px"><button class="bp" onclick="saveSetup()" style="width:100%;justify-content:center;padding:13px">Verbinding testen &amp; opslaan</button></div>
+      </div>
+    </div>
+    <div id="view-loading" class="hid"><div class="ld"><div class="sp"></div><span>Gegevens laden...</span></div></div>
+    <div id="view-home" class="hid">
+      <div class="dh" id="home-date"></div>
+      <div id="home-appts"></div>
+      <button class="bnb" onclick="openWiz()">&#128203;&nbsp; Nieuwe opdracht</button>
+    </div>
+    <div id="view-clients" class="hid">
+      <div class="tb">
+        <input type="text" id="client-search" placeholder="&#128269; Zoek klant..." oninput="renderClients()">
+        <button class="bp" onclick="openClientModal(null,false)">+ Nieuwe klant</button>
+      </div>
+      <input type="file" id="csv-input" accept=".csv,.xls,.xlsx" class="hid" onchange="importCSV(event)">
+      <div class="cd"><div id="client-list"></div></div>
+    </div>
+    <div id="view-agenda" class="hid">
+      <div class="tb">
+        <input type="text" id="appt-search" placeholder="&#128269; Zoek op naam..." oninput="renderAppts()">
+        <button class="bp" onclick="openWiz()">+ Nieuwe opdracht</button>
+      </div>
+      <div class="vs">
+        <button class="vb ac" id="vbtn-dag" onclick="setView('dag')">Dag</button>
+        <button class="vb" id="vbtn-week" onclick="setView('week')">Week</button>
+        <button class="vb" id="vbtn-maand" onclick="setView('maand')">Maand</button>
+      </div>
+      <div id="appt-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="ov hid" id="modal-client" onclick="bgClose(event,'modal-client')">
+  <div class="mo">
+    <div class="mh"></div>
+    <h2 id="mc-title">Nieuwe klant</h2>
+    <div class="fr"><label>Naam *</label><input id="mc-name" type="text" placeholder="Jan Janssen"></div>
+    <div class="fr"><label>Adres</label><input id="mc-addr" type="text" placeholder="Kerkstraat 12"></div>
+    <div class="fr"><label>Postcode &amp; gemeente</label><input id="mc-city" type="text" placeholder="3390 Tielt-Winge"></div>
+    <div class="fr"><label>GSM / telefoon</label><input id="mc-phone" type="tel" placeholder="0471 23 45 67"></div>
+    <div class="fr"><label>E-mail</label><input id="mc-email" type="email" placeholder="jan@email.be"></div>
+    <div class="fr"><label>Standaardprijs (&#8364;)</label><input id="mc-price" type="number" min="0" step="0.5" placeholder="45"></div>
+    <div class="fr"><label>Notities</label><textarea id="mc-notes" placeholder="Bv. hond in tuin..."></textarea></div>
+    <div class="ma">
+      <button class="bs" onclick="closeModals()">Annuleren</button>
+      <button class="bs" onclick="saveClient(false)">Opslaan</button>
+      <button class="bp" onclick="saveClient(true)">Opslaan &amp; afspraak &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov hid" id="modal-wiz" onclick="bgClose(event,'modal-wiz')">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="sb">
+      <div class="sdot ac" id="sd1">1</div><div class="sl"></div>
+      <div class="sdot" id="sd2">2</div><div class="sl"></div>
+      <div class="sdot" id="sd3">3</div>
+    </div>
+    <div id="wiz1">
+      <h2>Welke klant?</h2>
+      <div class="fr"><input type="text" id="wiz-search" placeholder="&#128269; Zoek klant..." oninput="renderWizClients()"></div>
+      <div class="pl" id="wiz-clients"></div>
+
+      <div style="margin-top:10px;background:#f5f5f5;border-radius:10px;padding:10px 12px">
+        <div style="font-size:12px;color:#888;margin-bottom:6px;font-weight:600">OF VRIJE TEKST</div>
+        <input type="text" id="wiz-free" placeholder="Bv. notitie, eenmalige klant..." style="width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+        <button class="bp" onclick="pickFree()" style="margin-top:8px;width:100%;justify-content:center">Doorgaan met vrije tekst &#8594;</button>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:space-between">
+        <button class="bs" onclick="closeModals()">Annuleren</button>
+        <button class="bs" onclick="openClientModal(null,true)">+ Nieuwe klant</button>
+      </div>
+    </div>
+    <div id="wiz2" class="hid">
+      <h2>Wanneer?</h2>
+      <div class="scb" id="wiz-sel-client"></div>
+      <div class="fr"><label>Datum *</label><input id="wiz-date" type="date"></div>
+      <div class="fr"><label>Tijdstip</label><input id="wiz-time" type="time" value="08:00"></div>
+      <div class="ma">
+        <button class="bs" onclick="wizStep(1)">&#8592; Terug</button>
+        <button class="bp" onclick="wizStep(3)">Verder &#8594;</button>
+      </div>
+    </div>
+    <div id="wiz3" class="hid">
+      <h2>Details</h2>
+      <div class="fr"><label>Dienst</label>
+        <input type="text" id="wiz-service" list="dienst-list" placeholder="Kies of typ zelf...">
+        <datalist id="dienst-list">
+          <option>Ramen wassen buiten</option>
+          <option>Ramen wassen binnen en buiten</option>
+          <option>Ramen wassen binnen</option>
+          <option>Dakgoten reinigen</option>
+          <option>Osmose</option>
+        </datalist>
+      </div>
+      <div class="fr"><label>Prijs (&#8364;)</label><input id="wiz-price" type="number" min="0" step="0.5" placeholder="45"></div>
+      <div class="fr"><label>Kleur</label>
+        <div class="cp" id="wiz-colors">
+          <div class="co sel" data-color="" style="background:#1D9E75"></div>
+          <div class="co" data-color="red" style="background:#e24b4a"></div>
+          <div class="co" data-color="orange" style="background:#f5a623"></div>
+          <div class="co" data-color="blue" style="background:#2980b9"></div>
+          <div class="co" data-color="purple" style="background:#8e44ad"></div>
+          <div class="co" data-color="dark" style="background:#3a3a3a"></div>
+        </div>
+      </div>
+      <div class="fr"><label>Notities</label><textarea id="wiz-notes" placeholder="Extra info..."></textarea></div>
+      <div class="ma">
+        <button class="bs" onclick="wizStep(2)">&#8592; Terug</button>
+        <button class="bp" onclick="saveWizAppt()">&#10003; Opslaan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ov hid" id="modal-appt" onclick="bgClose(event,'modal-appt')">
+  <div class="mo">
+    <div class="mh"></div>
+    <h2>Afspraak bewerken</h2>
+    <div class="fr"><label>Klant</label><select id="ma-client"></select></div>
+    <div class="fr"><label>Datum *</label><input id="ma-date" type="date"></div>
+    <div class="fr"><label>Tijdstip</label><input id="ma-time" type="time"></div>
+    <div class="fr"><label>Dienst</label>
+      <input type="text" id="ma-service" list="dienst-list" placeholder="Kies of typ zelf...">
+    </div>
+    <div class="fr"><label>Prijs (&#8364;)</label><input id="ma-price" type="number" min="0" step="0.5"></div>
+    <div class="fr"><label>Status</label>
+      <select id="ma-status"><option value="gepland">Gepland</option><option value="gedaan">Gedaan</option></select>
+    </div>
+    <div class="fr"><label>Kleur</label>
+      <div class="cp" id="ma-colors">
+        <div class="co sel" data-color="" style="background:#1D9E75"></div>
+        <div class="co" data-color="red" style="background:#e24b4a"></div>
+        <div class="co" data-color="orange" style="background:#f5a623"></div>
+        <div class="co" data-color="blue" style="background:#2980b9"></div>
+        <div class="co" data-color="purple" style="background:#8e44ad"></div>
+        <div class="co" data-color="dark" style="background:#3a3a3a"></div>
+      </div>
+    </div>
+    <div class="fr"><label>Notities</label><textarea id="ma-notes"></textarea></div>
+    <div class="ma">
+      <button class="bs bd" onclick="delAppt()">&#128465; Verwijderen</button>
+      <button class="bs" onclick="closeModals()">Annuleren</button>
+      <button class="bp" onclick="saveAppt()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="ts" id="toast"></div>
+
+<script>
+var SU = localStorage.getItem('ct_su') || 'https://script.google.com/macros/s/AKfycbyJNYvF7c4XwfEezPJ3tXZtmz6HJSTcCroczZInjBsEgeoI-qX3jinn4SzHyhp8-FY4hg/exec';
+var clients = JSON.parse(localStorage.getItem('ct_cl') || '[]');
+var appts = JSON.parse(localStorage.getItem('ct_ap') || '[]');
+var editCid = null, editAid = null, wizCid = null, afterNew = false, agView = 'dag';
+var CM = {'':'#1D9E75','red':'#e24b4a','orange':'#f5a623','blue':'#2980b9','purple':'#8e44ad','dark':'#3a3a3a'};
+var DA = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+var MO = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+var MN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function td(){return new Date().toISOString().slice(0,10);}
+function ini(n){return n.trim().split(/\s+/).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
+function cbi(id){return clients.find(function(x){return x.id===id;});}
+function cn(id){
+  if(id && id.indexOf('FREE:')===0) return id.slice(5);
+  var c=cbi(id);return c?c.name:'?';
+}
+function sl(){localStorage.setItem('ct_cl',JSON.stringify(clients));localStorage.setItem('ct_ap',JSON.stringify(appts));}
+function setSd(s){document.getElementById('sd').className='sd '+s;}
+function toast(m,d){var t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(function(){t.classList.remove('sh');},d||2200);}
+
+function api(p){
+  setSd('sy');
+  return fetch(SU+'?t='+Date.now(),{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p),cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){setSd('ok');setTimeout(function(){setSd('');},2000);return d;})
+    .catch(function(e){setSd('er');throw e;});
+}
+
+function normAppts(arr){
+  return (arr||[]).map(function(a){
+    if(a.date&&!/^\d{4}-\d{2}-\d{2}$/.test(String(a.date))){
+      var d=new Date(a.date);if(!isNaN(d)&&d.getFullYear()>1900)a.date=d.toISOString().slice(0,10);
+    }
+    return a;
+  });
+}
+
+function loadAll(){
+  if(!SU){showSetup();return;}
+  showLoading();
+  api({action:'getAll'}).then(function(d){
+    if(d.clients)clients=d.clients;
+    if(d.appts)appts=normAppts(d.appts);
+    sl();hideLoading();showTab('home');
+  }).catch(function(){hideLoading();toast('Offline - lokale data');showTab('home');});
+}
+
+function showSetup(){
+  document.getElementById('view-setup').classList.remove('hid');
+  ['home','clients','agenda','loading'].forEach(function(v){document.getElementById('view-'+v).classList.add('hid');});
+}
+function showLoading(){
+  document.getElementById('view-setup').classList.add('hid');
+  ['home','clients','agenda'].forEach(function(v){document.getElementById('view-'+v).classList.add('hid');});
+  document.getElementById('view-loading').classList.remove('hid');
+}
+function hideLoading(){document.getElementById('view-loading').classList.add('hid');}
+function saveSetup(){
+  var u=document.getElementById('setup-url').value.trim();
+  if(!u){alert('Vul de URL in');return;}
+  SU=u;localStorage.setItem('ct_su',u);loadAll();
+}
+
+function showTab(t){
+  document.getElementById('view-setup').classList.add('hid');
+  ['home','clients','agenda'].forEach(function(v){
+    document.getElementById('view-'+v).classList.toggle('hid',v!==t);
+    document.getElementById('tab-'+v).classList.toggle('ac',v===t);
+  });
+  if(t==='home')renderHome();
+  else if(t==='clients')renderClients();
+  else if(t==='agenda')renderAppts();
+}
+
+function renderHome(){
+  var now=new Date(),t=td();
+  var el=document.getElementById('home-date');
+  if(el)el.textContent=DA[now.getDay()]+' '+now.getDate()+' '+MO[now.getMonth()]+' '+now.getFullYear();
+  var el2=document.getElementById('home-appts');if(!el2)return;
+  var list=appts.filter(function(a){return String(a.date||'').slice(0,10)===t;})
+               .sort(function(a,b){return (a.time||'').localeCompare(b.time||'');});
+  if(!list.length){el2.innerHTML='<div class="eh"><div style="font-size:36px">&#9728;&#65039;</div>Geen opdrachten vandaag</div>';return;}
+  el2.innerHTML=list.map(function(a){
+    var c=cbi(a.clientId),addr=c?[c.addr,c.city].filter(Boolean).join(', '):'';
+    var bg=(a.color&&CM[a.color])?CM[a.color]:(a.status==='gedaan'?'#3a3a3a':'#1D9E75');
+    var time=(a.time&&a.time.indexOf('1899')===-1&&a.time.indexOf('GMT')===-1)?a.time:'';
+    return '<div class="ab" style="background:'+bg+';color:#fff" data-id="'+a.id+'" onclick="openApptById(this.dataset.id)">'+
+      '<div class="ar"><span class="at">'+(time||'&#8211;')+'</span><span class="as">'+(a.status==='gedaan'?'&#10003; Gedaan':'Gepland')+'</span></div>'+
+      '<div class="an">'+cn(a.clientId)+'</div>'+
+      (addr?'<div class="aa">&#128205; '+addr+'</div>':'')+
+      (a.service?'<div class="av">'+a.service+'</div>':'')+
+      (a.price&&String(a.price).indexOf('1899')===-1?'<div class="ap">&#8364; '+a.price+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function renderClients(){
+  var q=((document.getElementById('client-search')||{}).value||'').toLowerCase();
+  var list=clients.filter(function(c){return !q||c.name.toLowerCase().includes(q)||(c.city||'').toLowerCase().includes(q)||(c.addr||'').toLowerCase().includes(q);});
+  list.sort(function(a,b){return a.name.localeCompare(b.name,'nl');});
+  var el=document.getElementById('client-list');
+  if(!list.length){el.innerHTML='<div class="em"><div style="font-size:32px">&#128101;</div>'+(q?'Geen resultaten':'Nog geen klanten')+'</div>';return;}
+  el.innerHTML=list.map(function(c){
+    return '<div class="cr">'+
+      '<div class="av2">'+ini(c.name)+'</div>'+
+      '<div class="ci"><div class="cn">'+c.name+'</div><div class="cm">'+[c.addr,c.city,c.phone].filter(Boolean).join(' &middot; ')+'</div></div>'+
+      '<div class="ca">'+
+        '<button class="bs" data-id="'+c.id+'" onclick="editClientById(this.dataset.id)">&#9999;&#65039;</button>'+
+        '<button class="bs bd" data-id="'+c.id+'" onclick="delClientById(this.dataset.id)">&#128465;</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+function openClientModal(id,fromWiz){
+  afterNew=!!fromWiz;editCid=id||null;
+  var c=id?clients.find(function(x){return x.id===id;}):{};
+  document.getElementById('mc-title').textContent=id?'Klant bewerken':'Nieuwe klant';
+  document.getElementById('mc-name').value=c.name||'';
+  document.getElementById('mc-addr').value=c.addr||'';
+  document.getElementById('mc-city').value=c.city||'';
+  document.getElementById('mc-phone').value=c.phone||'';
+  document.getElementById('mc-email').value=c.email||'';
+  document.getElementById('mc-price').value=c.defaultPrice||'';
+  document.getElementById('mc-notes').value=c.notes||'';
+  if(fromWiz)document.getElementById('modal-wiz').classList.add('hid');
+  document.getElementById('modal-client').classList.remove('hid');
+  setTimeout(function(){document.getElementById('mc-name').focus();},100);
+}
+function editClientById(id){openClientModal(id,false);}
+function delClientById(id){
+  if(!confirm('Klant verwijderen?'))return;
+  clients=clients.filter(function(x){return x.id!==id;});
+  sl();api({action:'deleteClient',id:id}).catch(function(){});renderClients();toast('Klant verwijderd');
+}
+
+function saveClient(planAppt){
+  var name=document.getElementById('mc-name').value.trim();
+  if(!name){alert('Naam is verplicht');return;}
+  var data={name:name,addr:document.getElementById('mc-addr').value.trim(),city:document.getElementById('mc-city').value.trim(),phone:document.getElementById('mc-phone').value.trim(),email:document.getElementById('mc-email').value.trim(),defaultPrice:document.getElementById('mc-price').value,notes:document.getElementById('mc-notes').value.trim()};
+  var nid=editCid;
+  if(editCid){Object.assign(clients.find(function(x){return x.id===editCid;}),data);data.id=editCid;}
+  else{nid=uid();data.id=nid;clients.push(data);}
+  sl();api({action:'saveClient',client:data}).catch(function(){toast('Niet gesynchroniseerd');});
+  document.getElementById('modal-client').classList.add('hid');
+  if(afterNew||planAppt){
+    wizCid=nid;
+    document.getElementById('wiz-search').value='';
+    document.getElementById('wiz-date').value=td();
+    document.getElementById('wiz-time').value='08:00';
+    document.getElementById('wiz-service').value='';
+    document.getElementById('wiz-notes').value='';
+    if(data.defaultPrice)document.getElementById('wiz-price').value=data.defaultPrice;
+    else document.getElementById('wiz-price').value='';
+    if(data.notes)document.getElementById('wiz-notes').value=data.notes;
+    initCP('wiz-colors','');
+    document.getElementById('modal-wiz').classList.remove('hid');
+    document.getElementById('wiz-sel-client').innerHTML='👤 '+data.name+(data.addr?' · '+data.addr:'')+(data.city?', '+data.city:'');
+    wizStep(2);
+  } else {toast('Klant opgeslagen');renderClients();}
+}
+
+function importCSV(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var text=ev.target.result,count=0,skip=0,batch=[];
+    if(text.indexOf('<table')>-1||text.indexOf('<th')>-1){
+      var doc=(new DOMParser()).parseFromString(text,'text/html'),rows=doc.querySelectorAll('tr');
+      if(rows.length<2){alert('Geen klanten gevonden');return;}
+      var hdrs=[];rows[0].querySelectorAll('th,td').forEach(function(c){hdrs.push(c.textContent.trim().toLowerCase());});
+      function ci2(ns){for(var i=0;i<ns.length;i++){var x=hdrs.findIndex(function(h){return h.includes(ns[i]);});if(x>=0)return x;}return -1;}
+      function gc(cells,ns){var i=ci2(ns);return(i<0||!cells[i])?'':cells[i].textContent.trim();}
+      for(var i=1;i<rows.length;i++){
+        var cells=rows[i].querySelectorAll('td');if(cells.length<2)continue;
+        var name=gc(cells,['bedrijf','naam','name']);if(!name){skip++;continue;}
+        if(clients.find(function(c){return c.name.toLowerCase()===name.toLowerCase();})){skip++;continue;}
+        var pc=gc(cells,['pc','postcode']),gem=gc(cells,['gemeente']);
+        var nc={id:uid(),name:name,addr:gc(cells,['adres','straat']),city:pc&&gem?pc+' '+gem:(pc||gem),phone:gc(cells,['gsm','mob'])||gc(cells,['tel']),email:gc(cells,['email','mail']),defaultPrice:gc(cells,['prijs','price']),notes:''};
+        clients.push(nc);batch.push(nc);count++;
+      }
+    }
+    sl();if(batch.length)api({action:'importClients',clients:batch}).catch(function(){});
+    renderClients();alert(count+' klanten geimporteerd'+(skip?' ('+skip+' overgeslagen)':'')+'.');
+  };
+  reader.readAsText(file,'UTF-8');e.target.value='';
+}
+
+function setView(v){
+  agView=v;
+  ['dag','week','maand'].forEach(function(n){var b=document.getElementById('vbtn-'+n);if(b)b.classList.toggle('ac',n===v);});
+  renderAppts();
+}
+
+function aRow(a){
+  var ds=String(a.date||'').slice(0,10),d=new Date(ds+'T12:00');
+  var time=(a.time&&a.time.indexOf('1899')===-1&&a.time.indexOf('GMT')===-1)?a.time:'';
+  var meta=[time,a.service,a.price?'&#8364;'+a.price:''].filter(Boolean).join(' &middot; ');
+  var rc=(a.color&&CM[a.color])?CM[a.color]:(a.status==='gedaan'?'#3a3a3a':'#1D9E75');
+  return '<div class="ro" style="border-left:4px solid '+rc+';padding-left:8px;cursor:pointer" data-id="'+a.id+'" onclick="openApptById(this.dataset.id)">'+
+    '<div class="db"><div class="dd">'+ds.slice(8)+'</div><div class="dm">'+(isNaN(d)?'':MN[d.getMonth()])+'</div></div>'+
+    '<div class="di"><div class="dn">'+cn(a.clientId)+'</div>'+
+    (time?'<div class="dme">'+time+'</div>':'')+
+    '</div>'+
+    '<span class="ba '+(a.status==='gedaan'?'bok':'bpl')+'" style="flex-shrink:0">'+a.status+'</span>'+
+    '<div style="display:flex;gap:5px;flex-shrink:0" onclick="event.stopPropagation()">'+
+      '<button class="bs bd" data-id="'+a.id+'" onclick="delApptById(this.dataset.id)">&#128465;</button>'+
+    '</div></div>';
+}
+
+function renderAppts(){
+  var q=((document.getElementById('appt-search')||{}).value||'').toLowerCase();
+  var sorted=appts.filter(function(a){return !q||cn(a.clientId).toLowerCase().includes(q);})
+    .slice().sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''))||(a.time||'').localeCompare(b.time||'');});
+  var el=document.getElementById('appt-list');
+  if(!sorted.length){el.innerHTML='<div class="cd"><div class="em"><div style="font-size:32px">&#128197;</div>Geen afspraken</div></div>';return;}
+  var html='';
+  if(agView==='dag'){
+    var g={},o=[];
+    sorted.forEach(function(a){var ds=String(a.date||'').slice(0,10);if(!g[ds]){g[ds]=[];o.push(ds);}g[ds].push(a);});
+    o.forEach(function(ds){
+      var d=new Date(ds+'T12:00');
+      var lbl=isNaN(d)?ds:DA[d.getDay()]+' '+d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();
+      html+='<div class="gb"><div class="gl2">'+lbl+'</div><div class="cd" style="padding:4px 10px">'+g[ds].map(aRow).join('')+'</div></div>';
+    });
+  } else if(agView==='week'){
+    var wg={},wo=[];
+    sorted.forEach(function(a){
+      var ds=String(a.date||'').slice(0,10),d=new Date(ds+'T12:00'),day=d.getDay()||7;
+      var mon=new Date(d);mon.setDate(d.getDate()-day+1);
+      var sun=new Date(mon);sun.setDate(mon.getDate()+6);
+      var wk=mon.toISOString().slice(0,10);
+      var wl=mon.getDate()+' '+MO[mon.getMonth()]+' – '+sun.getDate()+' '+MO[sun.getMonth()]+' '+sun.getFullYear();
+      if(!wg[wk]){wg[wk]={l:wl,i:[]};wo.push(wk);}wg[wk].i.push(a);
+    });
+    wo.forEach(function(wk){html+='<div class="gb"><div class="gl2">Week van '+wg[wk].l+'</div><div class="cd" style="padding:4px 10px">'+wg[wk].i.map(aRow).join('')+'</div></div>';});
+  } else {
+    var mg={},mo2=[];
+    sorted.forEach(function(a){
+      var ds=String(a.date||'').slice(0,10),d=new Date(ds+'T12:00');
+      var mk=isNaN(d)?'?':d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      var ml=isNaN(d)?'?':MO[d.getMonth()]+' '+d.getFullYear();
+      if(!mg[mk]){mg[mk]={l:ml,i:[]};mo2.push(mk);}mg[mk].i.push(a);
+    });
+    mo2.forEach(function(mk){html+='<div class="gb"><div class="ml">'+mg[mk].l+'</div><div class="cd" style="padding:4px 10px">'+mg[mk].i.map(aRow).join('')+'</div></div>';});
+  }
+  el.innerHTML=html;
+}
+
+function openWiz(){
+  wizCid=null;
+  document.getElementById('wiz-search').value='';
+  if(document.getElementById('wiz-free')) document.getElementById('wiz-free').value='';
+  document.getElementById('wiz-date').value=td();
+  document.getElementById('wiz-time').value='08:00';
+  document.getElementById('wiz-service').value='';
+  document.getElementById('wiz-price').value='';
+  document.getElementById('wiz-notes').value='';
+  initCP('wiz-colors','');wizStep(1);renderWizClients();
+  document.getElementById('modal-wiz').classList.remove('hid');
+  setTimeout(function(){document.getElementById('wiz-search').focus();},150);
+}
+
+function wizStep(n){
+  [1,2,3].forEach(function(i){
+    document.getElementById('wiz'+i).classList.toggle('hid',i!==n);
+    var d=document.getElementById('sd'+i);
+    d.classList.toggle('ac',i===n);d.classList.toggle('dn2',i<n);
+  });
+  if(n===2&&wizCid){
+    var c=cbi(wizCid);
+    document.getElementById('wiz-sel-client').innerHTML='👤 '+c.name+(c.addr?' · '+c.addr:'')+(c.city?', '+c.city:'');
+    if(c.defaultPrice)document.getElementById('wiz-price').value=c.defaultPrice;
+  }
+  if(n===3&&!document.getElementById('wiz-date').value){alert('Vul een datum in');wizStep(2);}
+}
+
+function renderWizClients(){
+  var q=((document.getElementById('wiz-search')||{}).value||'').toLowerCase();
+  var list=clients.filter(function(c){return !q||c.name.toLowerCase().includes(q)||(c.city||'').toLowerCase().includes(q);});
+  list.sort(function(a,b){return a.name.localeCompare(b.name,'nl');});
+  var el=document.getElementById('wiz-clients');
+  if(!list.length){el.innerHTML='<div style="font-size:14px;color:#bbb;padding:14px;text-align:center">Geen klanten gevonden</div>';return;}
+  el.innerHTML=list.map(function(c){
+    return '<div class="pr'+(wizCid===c.id?' sel':'')+'" data-id="'+c.id+'" onclick="pickClient(this.dataset.id)">'+
+      '<div class="av2" style="width:34px;height:34px;font-size:12px">'+ini(c.name)+'</div>'+
+      '<div><div style="font-size:15px;font-weight:700">'+c.name+'</div><div style="font-size:12px;color:#999">'+[c.addr,c.city].filter(Boolean).join(', ')+'</div></div></div>';
+  }).join('');
+}
+
+function pickFree(){
+  var txt = document.getElementById('wiz-free').value.trim();
+  if(!txt){ alert('Vul een omschrijving in'); return; }
+  wizCid = 'FREE:' + txt;
+  var el = document.getElementById('wiz-sel-client');
+  el.innerHTML = '&#128203; ' + txt;
+  wizStep(2);
+}
+
+function pickClient(id){
+  wizCid=id;
+  var c=cbi(id);
+  if(c&&c.defaultPrice) document.getElementById('wiz-price').value=c.defaultPrice;
+  if(c&&c.notes) document.getElementById('wiz-notes').value=c.notes;
+  wizStep(2);
+}
+
+function saveWizAppt(){
+  var date=document.getElementById('wiz-date').value;
+  if(!wizCid||!date){alert('Klant en datum zijn verplicht');return;}
+  // For free text, show name directly
+  
+  var a={id:uid(),clientId:wizCid,date:date,time:document.getElementById('wiz-time').value,service:document.getElementById('wiz-service').value,price:document.getElementById('wiz-price').value,status:'gepland',color:getCP('wiz-colors'),notes:document.getElementById('wiz-notes').value.trim()};
+  appts.push(a);sl();
+  api({action:'saveAppt',appt:a}).catch(function(){toast('Niet gesynchroniseerd');});
+  closeModals();renderHome();renderAppts();toast('Opdracht ingepland');
+}
+
+function openApptById(id){
+  editAid=id;var a=appts.find(function(x){return x.id===id;});if(!a)return;
+  document.getElementById('ma-client').innerHTML=clients.map(function(c){return '<option value="'+c.id+'"'+(a.clientId===c.id?' selected':'')+'>'+c.name+'</option>';}).join('');
+  document.getElementById('ma-date').value=a.date||'';
+  document.getElementById('ma-time').value=a.time||'';
+  document.getElementById('ma-service').value=a.service||'';
+  document.getElementById('ma-price').value=a.price||'';
+  document.getElementById('ma-status').value=a.status||'gepland';
+  document.getElementById('ma-notes').value=a.notes||'';
+  initCP('ma-colors',a.color||'');
+  document.getElementById('modal-appt').classList.remove('hid');
+}
+
+function saveAppt(){
+  var a=appts.find(function(x){return x.id===editAid;});if(!a)return;
+  a.clientId=document.getElementById('ma-client').value;
+  a.date=document.getElementById('ma-date').value;
+  a.time=document.getElementById('ma-time').value;
+  a.service=document.getElementById('ma-service').value;
+  a.price=document.getElementById('ma-price').value;
+  a.status=document.getElementById('ma-status').value;
+  a.color=getCP('ma-colors');
+  a.notes=document.getElementById('ma-notes').value;
+  sl();api({action:'saveAppt',appt:a}).catch(function(){toast('Niet gesynchroniseerd');});
+  closeModals();renderHome();toast('Afspraak opgeslagen');
+  if(!document.getElementById('view-agenda').classList.contains('hid'))renderAppts();
+}
+
+function delAppt(){
+  if(!confirm('Afspraak verwijderen?'))return;
+  appts=appts.filter(function(x){return x.id!==editAid;});
+  sl();api({action:'deleteAppt',id:editAid}).catch(function(){});
+  closeModals();renderHome();toast('Afspraak verwijderd');
+  if(!document.getElementById('view-agenda').classList.contains('hid'))renderAppts();
+}
+
+function delApptById(id){
+  if(!confirm('Afspraak verwijderen?'))return;
+  appts=appts.filter(function(x){return x.id!==id;});
+  sl();api({action:'deleteAppt',id:id}).catch(function(){});
+  renderAppts();renderHome();toast('Afspraak verwijderd');
+}
+
+function initCP(pid,color){
+  var p=document.getElementById(pid);if(!p)return;
+  p.querySelectorAll('.co').forEach(function(o){
+    o.classList.toggle('sel',o.dataset.color===(color||''));
+    o.onclick=function(){p.querySelectorAll('.co').forEach(function(x){x.classList.remove('sel');});o.classList.add('sel');};
+  });
+}
+function getCP(pid){var p=document.getElementById(pid);if(!p)return'';var s=p.querySelector('.co.sel');return s?s.dataset.color:'';}
+
+function hardReset(){
+  if(!confirm('Lokale data wissen en opnieuw laden?'))return;
+  var at=document.querySelector('.nav button.ac');var ct=at?at.id.replace('tab-',''):'home';
+  localStorage.removeItem('ct_cl');localStorage.removeItem('ct_ap');clients=[];appts=[];
+  api({action:'getAll'}).then(function(d){
+    if(d.clients)clients=d.clients;if(d.appts)appts=normAppts(d.appts);
+    sl();showTab(ct);toast('Gesynchroniseerd');
+  }).catch(function(){toast('Offline');});
+}
+
+function closeModals(){
+  ['modal-client','modal-wiz','modal-appt'].forEach(function(id){document.getElementById(id).classList.add('hid');});
+  afterNew=false;
+}
+function bgClose(e,id){if(e.target===document.getElementById(id))closeModals();}
+
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&SU){
+    api({action:'getAll'}).then(function(d){
+      if(d.clients)clients=d.clients;if(d.appts)appts=normAppts(d.appts);sl();
+      var at=document.querySelector('.nav button.ac');
+      if(at){var t=at.id.replace('tab-','');if(t==='home')renderHome();else if(t==='clients')renderClients();else if(t==='agenda')renderAppts();}
+    }).catch(function(){});
+  }
+});
+
+loadAll();
+</script>
+</body>
+</html>
